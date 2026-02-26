@@ -31,40 +31,40 @@ function getRelativeTime(date: Date) {
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return 'just now';
+  if (diffInSeconds < 60) return 'zojuist';
   if (diffInSeconds < 3600)
-    return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    return `${Math.floor(diffInSeconds / 60)} minuten geleden`;
   if (diffInSeconds < 86400)
-    return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 3600)} uur geleden`;
   if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)} days ago`;
-  return date.toLocaleDateString();
+    return `${Math.floor(diffInSeconds / 86400)} dagen geleden`;
+  return date.toLocaleDateString('nl-NL');
 }
 
 function formatAction(action: ActivityType): string {
   switch (action) {
     case ActivityType.SIGN_UP:
-      return 'You signed up';
+      return 'Je hebt je aangemeld';
     case ActivityType.SIGN_IN:
-      return 'You signed in';
+      return 'Je bent ingelogd';
     case ActivityType.SIGN_OUT:
-      return 'You signed out';
+      return 'Je bent uitgelogd';
     case ActivityType.UPDATE_PASSWORD:
-      return 'You changed your password';
+      return 'Je hebt je wachtwoord gewijzigd';
     case ActivityType.DELETE_ACCOUNT:
-      return 'You deleted your account';
+      return 'Je hebt je account verwijderd';
     case ActivityType.UPDATE_ACCOUNT:
-      return 'You updated your account';
+      return 'Je hebt je account bijgewerkt';
     case ActivityType.CREATE_TEAM:
-      return 'You created a new team';
+      return 'Je hebt een nieuw team aangemaakt';
     case ActivityType.REMOVE_TEAM_MEMBER:
-      return 'You removed a team member';
+      return 'Je hebt een teamlid verwijderd';
     case ActivityType.INVITE_TEAM_MEMBER:
-      return 'You invited a team member';
+      return 'Je hebt een teamlid uitgenodigd';
     case ActivityType.ACCEPT_INVITATION:
-      return 'You accepted an invitation';
+      return 'Je hebt een uitnodiging geaccepteerd';
     default:
-      return 'Unknown action occurred';
+      return 'Onbekende actie';
   }
 }
 
@@ -72,13 +72,13 @@ export default async function ActivityPage() {
   const logs = await getActivityLogs();
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-        Activity Log
+    <section className="flex-1 p-6 lg:p-8">
+      <h1 className="text-2xl font-semibold text-gray-900 mb-6">
+        Activiteitenlog
       </h1>
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>Recente activiteit</CardTitle>
         </CardHeader>
         <CardContent>
           {logs.length > 0 ? (
@@ -97,7 +97,7 @@ export default async function ActivityPage() {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">
                         {formattedAction}
-                        {log.ipAddress && ` from IP ${log.ipAddress}`}
+                        {log.ipAddress && ` vanaf IP ${log.ipAddress}`}
                       </p>
                       <p className="text-xs text-gray-500">
                         {getRelativeTime(new Date(log.timestamp))}
@@ -111,11 +111,11 @@ export default async function ActivityPage() {
             <div className="flex flex-col items-center justify-center text-center py-12">
               <AlertCircle className="h-12 w-12 text-orange-500 mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No activity yet
+                Nog geen activiteit
               </h3>
               <p className="text-sm text-gray-500 max-w-sm">
-                When you perform actions like signing in or updating your
-                account, they'll appear here.
+                Wanneer je acties uitvoert zoals inloggen of je account bijwerken,
+                verschijnen ze hier.
               </p>
             </div>
           )}

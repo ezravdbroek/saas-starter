@@ -3,8 +3,9 @@ import { db } from './drizzle';
 import { activityLogs, teamMembers, teams, users } from './schema';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
+import { cache } from 'react';
 
-export async function getUser() {
+export const getUser = cache(async () => {
   const sessionCookie = (await cookies()).get('session');
   if (!sessionCookie || !sessionCookie.value) {
     return null;
@@ -34,7 +35,7 @@ export async function getUser() {
   }
 
   return user[0];
-}
+});
 
 export async function getTeamByStripeCustomerId(customerId: string) {
   const result = await db
@@ -99,6 +100,32 @@ export async function getActivityLogs() {
     .limit(10);
 }
 
+// Lightweight: returns just the team (single joined query, no members loaded)
+export const getTeamId = cache(async () => {
+  const user = await getUser();
+  if (!user) return null;
+
+  const result = await db
+    .select({
+      id: teams.id,
+      name: teams.name,
+      createdAt: teams.createdAt,
+      updatedAt: teams.updatedAt,
+      stripeCustomerId: teams.stripeCustomerId,
+      stripeSubscriptionId: teams.stripeSubscriptionId,
+      stripeProductId: teams.stripeProductId,
+      planName: teams.planName,
+      subscriptionStatus: teams.subscriptionStatus,
+    })
+    .from(teamMembers)
+    .innerJoin(teams, eq(teamMembers.teamId, teams.id))
+    .where(eq(teamMembers.userId, user.id))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+});
+
+// Full: returns team with all members (for settings pages)
 export async function getTeamForUser() {
   const user = await getUser();
   if (!user) {

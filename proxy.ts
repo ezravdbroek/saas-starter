@@ -4,7 +4,7 @@ import { signToken, verifyToken } from '@/lib/auth/session';
 
 const protectedRoutes = '/dashboard';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get('session');
   const isProtectedRoute = pathname.startsWith(protectedRoutes);
@@ -15,22 +15,28 @@ export async function middleware(request: NextRequest) {
 
   let res = NextResponse.next();
 
+  // Only refresh session on GET requests and only when expiring within 12 hours
   if (sessionCookie && request.method === 'GET') {
     try {
       const parsed = await verifyToken(sessionCookie.value);
-      const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const expiresAt = new Date(parsed.expires);
+      const twelveHoursFromNow = new Date(Date.now() + 12 * 60 * 60 * 1000);
 
-      res.cookies.set({
-        name: 'session',
-        value: await signToken({
-          ...parsed,
-          expires: expiresInOneDay.toISOString()
-        }),
-        httpOnly: true,
-        secure: true,
-        sameSite: 'lax',
-        expires: expiresInOneDay
-      });
+      // Only re-sign if session expires within 12 hours
+      if (expiresAt < twelveHoursFromNow) {
+        const expiresInOneDay = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        res.cookies.set({
+          name: 'session',
+          value: await signToken({
+            ...parsed,
+            expires: expiresInOneDay.toISOString()
+          }),
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          expires: expiresInOneDay
+        });
+      }
     } catch (error) {
       console.error('Error updating session:', error);
       res.cookies.delete('session');
@@ -45,5 +51,4 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-  runtime: 'nodejs'
 };

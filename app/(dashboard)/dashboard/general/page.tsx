@@ -34,25 +34,25 @@ function AccountForm({
     <>
       <div>
         <Label htmlFor="name" className="mb-2">
-          Name
+          Naam
         </Label>
         <Input
           id="name"
           name="name"
-          placeholder="Enter your name"
+          placeholder="Voer je naam in"
           defaultValue={state.name || nameValue}
           required
         />
       </div>
       <div>
         <Label htmlFor="email" className="mb-2">
-          Email
+          E-mail
         </Label>
         <Input
           id="email"
           name="email"
           type="email"
-          placeholder="Enter your email"
+          placeholder="Voer je e-mail in"
           defaultValue={emailValue}
           required
         />
@@ -79,14 +79,14 @@ export default function GeneralPage() {
   );
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
-      <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
-        General Settings
+    <section className="flex-1 p-6 lg:p-8">
+      <h1 className="text-2xl font-semibold text-gray-900 mb-6">
+        Algemene instellingen
       </h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Account Information</CardTitle>
+          <CardTitle>Accountgegevens</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" action={formAction}>
@@ -107,10 +107,10 @@ export default function GeneralPage() {
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  Opslaan...
                 </>
               ) : (
-                'Save Changes'
+                'Wijzigingen opslaan'
               )}
             </Button>
           </form>
